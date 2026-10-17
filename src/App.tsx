@@ -223,7 +223,7 @@ export default function App() {
                   <p>仅供娱乐 · 请勿当真</p>
                 </div>
                 <div aria-label="当前结果分享二维码" className="shrink-0 border border-[#d9d2c5] bg-white p-1">
-                  <QRCodeSVG value={`${window.location.origin}${window.location.pathname}${window.location.search}#result=${grade}`} size={58} bgColor="#ffffff" fgColor="#171518" level="M" />
+                  <QRCodeSVG value={`${window.location.origin}${window.location.pathname}${window.location.search}`} size={58} bgColor="#ffffff" fgColor="#171518" level="M" />
                 </div>
               </div>
             </div>
