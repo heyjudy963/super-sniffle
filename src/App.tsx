@@ -152,8 +152,9 @@ export default function App() {
     const link = document.createElement('a'); link.download = `社交靠谱度背调报告-${grade}.png`; link.href = canvas.toDataURL('image/png'); link.click();
   };
   const copyLink = async () => {
-    try { await navigator.clipboard.writeText(window.location.href); setCopied(true); window.setTimeout(() => setCopied(false), 1600); }
-    catch { window.prompt('复制分享链接：', window.location.href); }
+    const homeUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+    try { await navigator.clipboard.writeText(homeUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1600); }
+    catch { window.prompt('复制测试首页链接：', homeUrl); }
   };
 
   const progress = ((questionIndex + 1) / questions.length) * 100;
