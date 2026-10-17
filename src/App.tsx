@@ -93,6 +93,7 @@ export default function App() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [scores, setScores] = useState<Record<Grade, number>>({ A: 0, B: 0, C: 0, D: 0 });
   const [copied, setCopied] = useState(false);
+  const [savingImage, setSavingImage] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const transition = (next: View) => { setView(next); setTransitionKey((key) => key + 1); };
@@ -147,9 +148,76 @@ export default function App() {
     setScores({ A: 0, B: 0, C: 0, D: 0 }); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); transition('home');
   };
   const saveImage = async () => {
-    if (!cardRef.current) return;
-    const canvas = await html2canvas(cardRef.current, { scale: 2, backgroundColor: '#f4f0e7', useCORS: true });
-    const link = document.createElement('a'); link.download = `社交靠谱度背调报告-${grade}.png`; link.href = canvas.toDataURL('image/png'); link.click();
+    const card = cardRef.current;
+    if (!card || savingImage) return;
+    setSavingImage(true);
+    try {
+      await document.fonts.ready;
+      const { width, height } = card.getBoundingClientRect();
+      const canvas = await html2canvas(card, {
+        scale: 3,
+        width,
+        height,
+        backgroundColor: '#fffdf7',
+        useCORS: true,
+        windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
+        onclone: (clonedDocument) => {
+          // 将浏览器最终计算出的样式固定为像素，避免 html2canvas 在部分手机上误算 cqw。
+          const clonedCard = clonedDocument.querySelector('[data-result-card]');
+          if (!clonedCard) return;
+          const copyComputedStyles = (source: Element, target: Element) => {
+            const computed = window.getComputedStyle(source);
+            const targetStyle = (target as HTMLElement | SVGElement).style;
+            for (let index = 0; index < computed.length; index += 1) {
+              const property = computed.item(index);
+              targetStyle.setProperty(property, computed.getPropertyValue(property));
+            }
+            Array.from(source.children).forEach((child, index) => {
+              const clonedChild = target.children[index];
+              if (clonedChild) copyComputedStyles(child, clonedChild);
+            });
+          };
+          copyComputedStyles(card, clonedCard);
+          const cardStyle = (clonedCard as HTMLElement).style;
+          cardStyle.width = `${width}px`;
+          cardStyle.height = `${height}px`;
+          cardStyle.maxWidth = 'none';
+          cardStyle.aspectRatio = 'auto';
+        },
+      });
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((value) => value ? resolve(value) : reject(new Error('PNG 生成失败')), 'image/png');
+      });
+      const filename = `社交靠谱度背调报告-${grade}.png`;
+      const file = new File([blob], filename, { type: 'image/png' });
+      const downloadFile = () => {
+        const imageUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = imageUrl;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60_000);
+      };
+      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+        // 手机系统分享面板支持“存储图像/保存到文件”等系统操作。
+        try {
+          await navigator.share({ files: [file], title: '社交靠谱度背调报告' });
+        } catch (error) {
+          // 用户主动关闭系统面板时尊重取消；其他兼容性错误退回浏览器下载。
+          if (error instanceof DOMException && error.name === 'AbortError') return;
+          downloadFile();
+        }
+      } else {
+        downloadFile();
+      }
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        console.error('结果图片导出失败：', error);
+        window.alert('图片生成失败，请刷新页面后重试。');
+      }
+    } finally {
+      setSavingImage(false);
+    }
   };
   const copyLink = async () => {
     const homeUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
@@ -191,7 +259,7 @@ export default function App() {
         </section>}
 
         {view === 'result' && result && grade && <>
-          <article ref={cardRef} style={{ gridTemplateRows: '22% 26% 7% 45%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
+          <article ref={cardRef} data-result-card style={{ gridTemplateRows: '22% 26% 7% 45%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
@@ -229,7 +297,7 @@ export default function App() {
               </div>
             </div>
           </article>
-          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99]">保存图片</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} disabled={savingImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99] disabled:cursor-wait disabled:opacity-70">{savingImage ? '正在生成…' : '保存图片'}</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
         </>}
       </div>
       <style>{`@keyframes fade-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes stamp{0%{opacity:0;transform:translateY(-18px) rotate(-12deg) scale(1.2)}70%{opacity:1;transform:translateY(2px) rotate(-12deg) scale(.96)}100%{transform:translateY(0) rotate(-12deg) scale(1)}}.animate-fade-in{animation:fade-in .32s ease-out both}.animate-stamp{animation:stamp .55s cubic-bezier(.2,.75,.25,1) both}`}</style>
