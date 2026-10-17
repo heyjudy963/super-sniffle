@@ -162,27 +162,13 @@ export default function App() {
         useCORS: true,
         windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
         onclone: (clonedDocument) => {
-          // 将浏览器最终计算出的样式固定为像素，避免 html2canvas 在部分手机上误算 cqw。
-          const clonedCard = clonedDocument.querySelector('[data-result-card]');
+          // 只固定卡片外框尺寸，保留子元素自然排版，避免文字行高被提前锁死后裁切。
+          const clonedCard = clonedDocument.querySelector('[data-result-card]') as HTMLElement | null;
           if (!clonedCard) return;
-          const copyComputedStyles = (source: Element, target: Element) => {
-            const computed = window.getComputedStyle(source);
-            const targetStyle = (target as HTMLElement | SVGElement).style;
-            for (let index = 0; index < computed.length; index += 1) {
-              const property = computed.item(index);
-              targetStyle.setProperty(property, computed.getPropertyValue(property));
-            }
-            Array.from(source.children).forEach((child, index) => {
-              const clonedChild = target.children[index];
-              if (clonedChild) copyComputedStyles(child, clonedChild);
-            });
-          };
-          copyComputedStyles(card, clonedCard);
-          const cardStyle = (clonedCard as HTMLElement).style;
-          cardStyle.width = `${width}px`;
-          cardStyle.height = `${height}px`;
-          cardStyle.maxWidth = 'none';
-          cardStyle.aspectRatio = 'auto';
+          clonedCard.style.width = `${width}px`;
+          clonedCard.style.height = `${height}px`;
+          clonedCard.style.maxWidth = 'none';
+          clonedCard.style.aspectRatio = 'auto';
         },
       });
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -259,7 +245,7 @@ export default function App() {
         </section>}
 
         {view === 'result' && result && grade && <>
-          <article ref={cardRef} data-result-card style={{ gridTemplateRows: '22% 26% 7% 45%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
+          <article ref={cardRef} data-result-card style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
