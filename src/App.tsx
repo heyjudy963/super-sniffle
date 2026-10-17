@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
+import { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 type Grade = 'A' | 'B' | 'C' | 'D';
@@ -75,23 +74,6 @@ function readHashResult(): Grade | null {
   return value && grades.includes(value as Grade) ? (value as Grade) : null;
 }
 
-async function waitForCardImages(card: HTMLElement): Promise<void> {
-  const images = Array.from(card.querySelectorAll('img'));
-  await Promise.all(images.map(async (image) => {
-    if (!image.complete) {
-      await new Promise<void>((resolve) => {
-        image.addEventListener('load', () => resolve(), { once: true });
-        image.addEventListener('error', () => resolve(), { once: true });
-      });
-    }
-    if (image.complete && image.naturalWidth > 0 && typeof image.decode === 'function') {
-      try { await image.decode(); } catch { /* 图片已加载但浏览器拒绝 decode 时继续截图 */ }
-    }
-  }));
-}
-
-const wait = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
-
 function trackQuizCompletion(attempt = 0) {
   if (window.umami?.track) {
     window.umami.track('quiz_completed');
@@ -110,10 +92,8 @@ export default function App() {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [scores, setScores] = useState<Record<Grade, number>>({ A: 0, B: 0, C: 0, D: 0 });
   const [copied, setCopied] = useState(false);
-  const [savingImage, setSavingImage] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showSaveHint, setShowSaveHint] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
-  const cardRef = useRef<HTMLDivElement>(null);
   const transition = (next: View) => { setView(next); setTransitionKey((key) => key + 1); };
 
   useEffect(() => {
@@ -165,87 +145,7 @@ export default function App() {
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
     setScores({ A: 0, B: 0, C: 0, D: 0 }); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); transition('home');
   };
-  const saveImage = async () => {
-    const card = cardRef.current;
-    if (!card || savingImage) return;
-    setSavingImage(true);
-    try {
-      window.scrollTo(0, 0);
-      await Promise.all([document.fonts.ready, waitForCardImages(card)]);
-      await wait(300);
-      const { width, height } = card.getBoundingClientRect();
-      const capturedCanvas = await html2canvas(card, {
-        scale: window.devicePixelRatio,
-        width,
-        height,
-        backgroundColor: '#f8f6f0',
-        useCORS: true,
-        allowTaint: false,
-        windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
-        onclone: (clonedDocument) => {
-          // html2canvas 对 cqw 的支持不一致；仅将使用 cqw 的属性换成浏览器已计算的像素值。
-          const clonedCard = clonedDocument.querySelector('[data-result-card]') as HTMLElement | null;
-          if (!clonedCard) return;
-          const cqwRules: Array<{ selector: string; properties: string[] }> = [];
-          const readRules = (rules: CSSRuleList) => {
-            Array.from(rules).forEach((rule) => {
-              if (rule instanceof CSSStyleRule) {
-                const properties = Array.from({ length: rule.style.length }, (_, index) => rule.style.item(index))
-                  .filter((property) => rule.style.getPropertyValue(property).includes('cqw'));
-                if (properties.length) cqwRules.push({ selector: rule.selectorText, properties });
-              } else if ('cssRules' in rule) {
-                readRules((rule as CSSGroupingRule).cssRules);
-              }
-            });
-          };
-          Array.from(document.styleSheets).forEach((styleSheet) => {
-            try { readRules(styleSheet.cssRules); } catch { /* 忽略不可读取的跨域样式表 */ }
-          });
-          const originalElements = [card, ...Array.from(card.querySelectorAll('*'))];
-          const clonedElements = [clonedCard, ...Array.from(clonedCard.querySelectorAll('*'))];
-          originalElements.forEach((source, index) => {
-            const target = clonedElements[index] as HTMLElement | SVGElement | undefined;
-            if (!target) return;
-            const properties = new Set<string>();
-            cqwRules.forEach(({ selector, properties: ruleProperties }) => {
-              try { if (source.matches(selector)) ruleProperties.forEach((property) => properties.add(property)); } catch { /* 忽略伪元素选择器 */ }
-            });
-            Array.from(source.attributes).forEach((attribute) => {
-              if (attribute.name === 'style' && attribute.value.includes('cqw')) {
-                const inlineStyle = (source as HTMLElement | SVGElement).style;
-                Array.from({ length: inlineStyle.length }, (_, styleIndex) => inlineStyle.item(styleIndex))
-                  .filter((property) => inlineStyle.getPropertyValue(property).includes('cqw'))
-                  .forEach((property) => properties.add(property));
-              }
-            });
-            const computed = window.getComputedStyle(source);
-            properties.forEach((property) => target.style.setProperty(property, computed.getPropertyValue(property)));
-          });
-          clonedCard.style.width = `${width}px`;
-          clonedCard.style.height = `${height}px`;
-          clonedCard.style.maxWidth = 'none';
-          clonedCard.style.aspectRatio = 'auto';
-        },
-      });
-      // 再经过不透明底色画布合成，确保 JPEG 没有透明像素且使用 Retina 分辨率。
-      const jpegCanvas = document.createElement('canvas');
-      jpegCanvas.width = capturedCanvas.width;
-      jpegCanvas.height = capturedCanvas.height;
-      const context = jpegCanvas.getContext('2d');
-      if (!context) throw new Error('无法创建图片画布');
-      context.fillStyle = '#f8f6f0';
-      context.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
-      context.drawImage(capturedCanvas, 0, 0, jpegCanvas.width, jpegCanvas.height);
-      const imageUrl = jpegCanvas.toDataURL('image/jpeg', 0.92);
-
-      setPreviewImage(imageUrl);
-    } catch (error) {
-      console.error('结果图片导出失败：', error);
-      window.alert('图片生成失败，请刷新页面后重试。');
-    } finally {
-      setSavingImage(false);
-    }
-  };
+  const saveImage = () => setShowSaveHint(true);
   const copyLink = async () => {
     const homeUrl = `${window.location.origin}${window.location.pathname}${window.location.search}`;
     try { await navigator.clipboard.writeText(homeUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1600); }
@@ -286,7 +186,7 @@ export default function App() {
         </section>}
 
         {view === 'result' && result && grade && <>
-          <div ref={cardRef} data-result-card className="mx-auto aspect-[9/16] w-full max-w-[390px] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
+          <div data-result-card className="mx-auto aspect-[9/16] w-full max-w-[390px] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
           <article data-result-card-inner style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
@@ -326,16 +226,15 @@ export default function App() {
             </div>
           </article>
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} disabled={savingImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99] disabled:cursor-wait disabled:opacity-70">{savingImage ? '正在生成…' : '保存图片'}</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99]">保存图片</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
         </>}
       </div>
       <style>{`[data-result-card-inner],[data-result-card-inner] *{font-family:system-ui,sans-serif!important}@keyframes fade-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes stamp{0%{opacity:0;transform:translateY(-18px) rotate(-12deg) scale(1.2)}70%{opacity:1;transform:translateY(2px) rotate(-12deg) scale(.96)}100%{transform:translateY(0) rotate(-12deg) scale(1)}}.animate-fade-in{animation:fade-in .32s ease-out both}.animate-stamp{animation:stamp .55s cubic-bezier(.2,.75,.25,1) both}`}</style>
-      {previewImage && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="结果图片预览">
-        <div className="relative flex max-h-full w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white p-4">
-          <button onClick={() => setPreviewImage(null)} className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-[#171518] shadow" aria-label="关闭图片预览">关闭</button>
-          <img crossOrigin="anonymous" src={previewImage} alt="社交靠谱度背调报告结果图片" className="max-h-[75vh] max-w-full object-contain" />
-          <a href={previewImage} download={`社交靠谱度背调报告-${grade}.jpg`} className="w-full rounded-full bg-[#171518] px-5 py-3 text-center text-sm font-bold text-white">下载 JPEG 图片</a>
-          <p className="text-center text-xs text-[#777268]">手机端可长按图片保存</p>
+      {showSaveHint && <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#171518]/55 p-5" role="dialog" aria-modal="true" aria-labelledby="save-hint-title">
+        <div className="w-full max-w-sm rounded-[24px] border border-[#f0e3e9] bg-[#fffdfb] px-6 py-7 text-center shadow-[0_24px_80px_rgba(23,21,24,0.2)]">
+          <h2 id="save-hint-title" className="text-xl font-black tracking-tight text-[#171518]">📸 保存你的社交烧心画像</h2>
+          <p className="mt-4 text-sm leading-7 text-[#625c60]">不同苹果机型浏览器内核存在差异，推荐直接手机截屏保存～😉</p>
+          <button onClick={() => setShowSaveHint(false)} className="mt-6 w-full rounded-full bg-[#171518] px-5 py-3.5 text-sm font-bold text-white transition hover:bg-[#353036] active:scale-[.99]">知道了</button>
         </div>
       </div>}
     </main>
