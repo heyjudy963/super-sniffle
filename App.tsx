@@ -14,6 +14,9 @@ declare global {
   }
   interface Window {
     umami?: { track: (eventName: string) => void };
+    wx?: {
+      previewImage: (options: { current: string; urls: string[] }) => void;
+    };
   }
 }
 
@@ -75,6 +78,30 @@ function readHashResult(): Grade | null {
   return value && grades.includes(value as Grade) ? (value as Grade) : null;
 }
 
+function isWeChatBrowser(): boolean {
+  return /MicroMessenger/i.test(navigator.userAgent);
+}
+
+function loadWeChatSDK(): Promise<NonNullable<Window['wx']>> {
+  if (window.wx?.previewImage) return Promise.resolve(window.wx);
+  return new Promise((resolve, reject) => {
+    const scriptId = 'wechat-js-sdk';
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+    const onReady = () => window.wx?.previewImage ? resolve(window.wx) : reject(new Error('微信 JS-SDK 不可用'));
+    if (script) {
+      script.addEventListener('load', onReady, { once: true });
+      script.addEventListener('error', () => reject(new Error('微信 JS-SDK 加载失败')), { once: true });
+      return;
+    }
+    script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+    script.onload = onReady;
+    script.onerror = () => reject(new Error('微信 JS-SDK 加载失败'));
+    document.head.appendChild(script);
+  });
+}
+
 function trackQuizCompletion(attempt = 0) {
   if (window.umami?.track) {
     window.umami.track('quiz_completed');
@@ -94,6 +121,7 @@ export default function App() {
   const [scores, setScores] = useState<Record<Grade, number>>({ A: 0, B: 0, C: 0, D: 0 });
   const [copied, setCopied] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [transitionKey, setTransitionKey] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const transition = (next: View) => { setView(next); setTransitionKey((key) => key + 1); };
@@ -154,15 +182,17 @@ export default function App() {
     try {
       await document.fonts.ready;
       const { width, height } = card.getBoundingClientRect();
-      const canvas = await html2canvas(card, {
-        scale: 3,
+      const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+      const capturedCanvas = await html2canvas(card, {
+        scale: pixelRatio,
         width,
         height,
         backgroundColor: '#fffdf7',
         useCORS: true,
+        allowTaint: false,
         windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
         onclone: (clonedDocument) => {
-          // 只固定卡片外框尺寸，保留子元素自然排版，避免文字行高被提前锁死后裁切。
+          // 固定截图副本外框尺寸，不改动页面上卡片的任何样式。
           const clonedCard = clonedDocument.querySelector('[data-result-card]') as HTMLElement | null;
           if (!clonedCard) return;
           clonedCard.style.width = `${width}px`;
@@ -171,36 +201,31 @@ export default function App() {
           clonedCard.style.aspectRatio = 'auto';
         },
       });
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((value) => value ? resolve(value) : reject(new Error('PNG 生成失败')), 'image/png');
-      });
-      const filename = `社交靠谱度背调报告-${grade}.png`;
-      const file = new File([blob], filename, { type: 'image/png' });
-      const downloadFile = () => {
-        const imageUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = filename;
-        link.href = imageUrl;
-        link.click();
-        window.setTimeout(() => URL.revokeObjectURL(imageUrl), 60_000);
-      };
-      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
-        // 手机系统分享面板支持“存储图像/保存到文件”等系统操作。
+      // 再经过不透明底色画布合成，确保 JPEG 没有透明像素且使用 Retina 分辨率。
+      const jpegCanvas = document.createElement('canvas');
+      jpegCanvas.width = capturedCanvas.width;
+      jpegCanvas.height = capturedCanvas.height;
+      const context = jpegCanvas.getContext('2d');
+      if (!context) throw new Error('无法创建图片画布');
+      context.fillStyle = '#fffdf7';
+      context.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
+      context.drawImage(capturedCanvas, 0, 0, jpegCanvas.width, jpegCanvas.height);
+      const imageUrl = jpegCanvas.toDataURL('image/jpeg', 0.92);
+
+      if (isWeChatBrowser()) {
         try {
-          await navigator.share({ files: [file], title: '社交靠谱度背调报告' });
-        } catch (error) {
-          // 用户主动关闭系统面板时尊重取消；其他兼容性错误退回浏览器下载。
-          if (error instanceof DOMException && error.name === 'AbortError') return;
-          downloadFile();
+          const wx = await loadWeChatSDK();
+          wx.previewImage({ current: imageUrl, urls: [imageUrl] });
+        } catch {
+          // 静态站点未配置微信签名时，保留图片预览和下载作为兜底。
+          setPreviewImage(imageUrl);
         }
       } else {
-        downloadFile();
+        setPreviewImage(imageUrl);
       }
     } catch (error) {
-      if (!(error instanceof DOMException && error.name === 'AbortError')) {
-        console.error('结果图片导出失败：', error);
-        window.alert('图片生成失败，请刷新页面后重试。');
-      }
+      console.error('结果图片导出失败：', error);
+      window.alert('图片生成失败，请刷新页面后重试。');
     } finally {
       setSavingImage(false);
     }
@@ -287,6 +312,14 @@ export default function App() {
         </>}
       </div>
       <style>{`@keyframes fade-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes stamp{0%{opacity:0;transform:translateY(-18px) rotate(-12deg) scale(1.2)}70%{opacity:1;transform:translateY(2px) rotate(-12deg) scale(.96)}100%{transform:translateY(0) rotate(-12deg) scale(1)}}.animate-fade-in{animation:fade-in .32s ease-out both}.animate-stamp{animation:stamp .55s cubic-bezier(.2,.75,.25,1) both}`}</style>
+      {previewImage && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="结果图片预览">
+        <div className="relative flex max-h-full w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white p-4">
+          <button onClick={() => setPreviewImage(null)} className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-[#171518] shadow" aria-label="关闭图片预览">关闭</button>
+          <img crossOrigin="anonymous" src={previewImage} alt="社交靠谱度背调报告结果图片" className="max-h-[75vh] max-w-full object-contain" />
+          <a href={previewImage} download={`社交靠谱度背调报告-${grade}.jpg`} className="w-full rounded-full bg-[#171518] px-5 py-3 text-center text-sm font-bold text-white">下载 JPEG 图片</a>
+          <p className="text-center text-xs text-[#777268]">手机端可长按图片保存</p>
+        </div>
+      </div>}
     </main>
   );
 }
