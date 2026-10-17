@@ -190,40 +190,40 @@ export default function App() {
         </section>}
 
         {view === 'result' && result && grade && <>
-          <article ref={cardRef} className="mx-auto flex aspect-[9/16] w-full max-w-[390px] flex-col overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
-            <div className="shrink-0 px-4 pb-0 pt-4 text-center sm:px-6 sm:pt-5">
-              <p className="text-[34px] font-black leading-none tracking-[-0.065em] text-[#202124] sm:text-[39px]">PYROSIS</p>
-              <p className="mt-1 text-[16px] font-black leading-tight tracking-[0.01em] text-[#d06435] sm:text-[18px]">= FIRE IN THE CHEST?</p>
-              <p className="mt-2 text-[10px] font-medium tracking-[0.16em] text-[#8e8c84] sm:text-[11px]">社交靠谱度 · 结果画像</p>
-              <div className="mt-1 flex min-h-[42px] items-center justify-center px-1 sm:min-h-[46px]">
-                <p className={`font-black leading-tight tracking-[-0.04em] text-black ${grade === 'B' ? 'text-[17px] sm:text-[20px]' : 'text-[22px] sm:text-[25px]'}`}>
+          <article ref={cardRef} style={{ gridTemplateRows: '22% 26% 7% 45%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
+            <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
+              <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
+              <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
+              <p className="mt-[1.7cqw] shrink-0 text-[2.7cqw] font-medium tracking-[0.16em] text-[#8e8c84]">社交靠谱度 · 结果画像</p>
+              <div className="mt-[1cqw] flex min-h-0 flex-1 items-center justify-center px-[1cqw]">
+                <p style={{ fontSize: grade === 'B' ? '4.4cqw' : '5cqw' }} className="font-black leading-tight tracking-[-0.04em] text-black">
                   {resultCallouts[grade]}
                 </p>
               </div>
             </div>
-            <div className="relative mx-3 mt-0 h-[190px] shrink-0 overflow-hidden sm:mx-5 sm:h-[205px]">
+            <div className="relative mx-[3cqw] min-h-0 overflow-hidden">
               <HeartburnIllustration grade={grade} />
             </div>
-            <div className="relative z-10 mt-1 flex shrink-0 justify-center px-2 pb-1">
-              <span className="whitespace-nowrap text-[34px] font-black leading-none tracking-[-0.06em] text-[#ef7f9f] sm:text-[40px]">
+            <div className="relative z-10 flex min-h-0 items-center justify-center overflow-hidden px-[2cqw]">
+              <span className="whitespace-nowrap text-[9.2cqw] font-black leading-none tracking-[-0.06em] text-[#ef7f9f]">
                 {result.tag}
               </span>
             </div>
-            <div className="flex min-h-0 flex-1 flex-col px-5 pb-3 pt-1 sm:px-7">
-              <div className="flex min-h-0 flex-1 flex-col border-t border-[#e8e3d8] pt-2 text-center">
-                <p className="shrink-0 text-[10px] font-semibold tracking-[0.14em] text-[#99958b]">你的社交烧心画像</p>
-                <h2 className="mt-1 shrink-0 text-[21px] font-black leading-tight tracking-[-0.04em] text-[#242426] sm:text-[23px]">{displayResultName(result.level)}</h2>
-                <p className="mt-2 text-left text-[12px] leading-[1.5] text-[#4e4d49] sm:text-[13px]">{result.description}</p>
-                <p className="mt-2 shrink-0 text-[12px] italic leading-[1.4] text-[#8d887e] sm:text-[13px]">“{resultQuotes[grade]}”</p>
-                <p className="mt-2 border-t border-[#e8e3d8] pt-2 text-left text-[11px] leading-[1.45] text-[#77736a]">{result.remark}</p>
+            <div className="grid min-h-0 overflow-hidden px-[5cqw] pb-[2cqw] pt-[1cqw]" style={{ gridTemplateRows: 'minmax(0, 1fr) auto' }}>
+              <div className="flex min-h-0 flex-col overflow-hidden border-t border-[#e8e3d8] pt-[2cqw] text-center">
+                <p className="shrink-0 text-[2.7cqw] font-semibold tracking-[0.14em] text-[#99958b]">你的社交烧心画像</p>
+                <h2 className="mt-[1cqw] shrink-0 text-[5.4cqw] font-black leading-tight tracking-[-0.04em] text-[#242426]">{displayResultName(result.level)}</h2>
+                <p className="mt-[2cqw] text-left text-[3.1cqw] leading-[1.5] text-[#4e4d49]">{result.description}</p>
+                <p className="mt-[2cqw] shrink-0 text-[3.1cqw] italic leading-[1.4] text-[#8d887e]">“{resultQuotes[grade]}”</p>
+                <p className="mt-[2cqw] border-t border-[#e8e3d8] pt-[2cqw] text-left text-[2.8cqw] leading-[1.45] text-[#77736a]">{result.remark}</p>
               </div>
-              <div className="mt-2 flex shrink-0 items-end justify-between border-t border-dashed border-[#d9d2c5] pt-2">
-                <div className="space-y-1 font-mono text-[8px] tracking-[0.04em] text-[#9b978c] sm:text-[9px]">
+              <div className="mt-[2cqw] flex shrink-0 items-end justify-between border-t border-dashed border-[#d9d2c5] pt-[2cqw]">
+                <div className="space-y-[1cqw] font-mono text-[2cqw] tracking-[0.04em] text-[#9b978c]">
                   <p>HEARTBURN PERSONALITY TEST</p>
                   <p>仅供娱乐 · 请勿当真</p>
                 </div>
-                <div aria-label="当前结果分享二维码" className="shrink-0 border border-[#d9d2c5] bg-white p-1">
-                  <QRCodeSVG value={`${window.location.origin}${window.location.pathname}${window.location.search}`} size={58} bgColor="#ffffff" fgColor="#171518" level="M" />
+                <div aria-label="当前结果分享二维码" className="aspect-square w-[18cqw] shrink-0 border border-[#d9d2c5] bg-white p-[1cqw]">
+                  <QRCodeSVG className="block h-full w-full" value={`${window.location.origin}${window.location.pathname}${window.location.search}`} size={100} bgColor="#ffffff" fgColor="#171518" level="M" />
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ function HeartburnIllustration({ grade }: { grade: Grade }) {
   }[grade];
 
   return (
-    <svg viewBox="0 0 360 330" role="img" aria-label={`${displayResultName(results[grade].level)}的烧心表情插画`} className="absolute inset-0 h-full w-full -translate-y-4">
+    <svg viewBox="0 0 360 330" role="img" aria-label={`${displayResultName(results[grade].level)}的烧心表情插画`} className="absolute inset-0 h-full w-full -translate-y-[4cqw]">
       <path d="M49 328 C55 272 73 225 119 207 C140 199 156 195 180 194 C211 193 239 200 263 211 C305 230 318 276 323 330Z" fill="#438f8b" stroke="#47352a" strokeWidth="4" strokeLinejoin="round" />
       <path d="M125 214 C138 247 154 266 179 269 C205 269 223 247 237 213" fill="none" stroke="#315f5d" strokeWidth="3" />
       <path d="M168 181 L168 211 Q181 225 198 211 L198 178" fill="#eaa176" stroke="#47352a" strokeWidth="4" strokeLinejoin="round" />
