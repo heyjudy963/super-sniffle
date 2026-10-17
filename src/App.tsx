@@ -14,9 +14,6 @@ declare global {
   }
   interface Window {
     umami?: { track: (eventName: string) => void };
-    wx?: {
-      previewImage: (options: { current: string; urls: string[] }) => void;
-    };
   }
 }
 
@@ -78,10 +75,6 @@ function readHashResult(): Grade | null {
   return value && grades.includes(value as Grade) ? (value as Grade) : null;
 }
 
-function isWeChatBrowser(): boolean {
-  return /MicroMessenger/i.test(navigator.userAgent);
-}
-
 async function waitForCardImages(card: HTMLElement): Promise<void> {
   const images = Array.from(card.querySelectorAll('img'));
   await Promise.all(images.map(async (image) => {
@@ -98,26 +91,6 @@ async function waitForCardImages(card: HTMLElement): Promise<void> {
 }
 
 const wait = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
-
-function loadWeChatSDK(): Promise<NonNullable<Window['wx']>> {
-  if (window.wx?.previewImage) return Promise.resolve(window.wx);
-  return new Promise((resolve, reject) => {
-    const scriptId = 'wechat-js-sdk';
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    const onReady = () => window.wx?.previewImage ? resolve(window.wx) : reject(new Error('微信 JS-SDK 不可用'));
-    if (script) {
-      script.addEventListener('load', onReady, { once: true });
-      script.addEventListener('error', () => reject(new Error('微信 JS-SDK 加载失败')), { once: true });
-      return;
-    }
-    script = document.createElement('script');
-    script.id = scriptId;
-    script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
-    script.onload = onReady;
-    script.onerror = () => reject(new Error('微信 JS-SDK 加载失败'));
-    document.head.appendChild(script);
-  });
-}
 
 function trackQuizCompletion(attempt = 0) {
   if (window.umami?.track) {
@@ -201,9 +174,8 @@ export default function App() {
       await Promise.all([document.fonts.ready, waitForCardImages(card)]);
       await wait(300);
       const { width, height } = card.getBoundingClientRect();
-      const pixelRatio = window.devicePixelRatio || 1;
       const capturedCanvas = await html2canvas(card, {
-        scale: pixelRatio,
+        scale: window.devicePixelRatio,
         width,
         height,
         backgroundColor: '#f8f6f0',
@@ -266,17 +238,7 @@ export default function App() {
       context.drawImage(capturedCanvas, 0, 0, jpegCanvas.width, jpegCanvas.height);
       const imageUrl = jpegCanvas.toDataURL('image/jpeg', 0.92);
 
-      if (isWeChatBrowser()) {
-        try {
-          const wx = await loadWeChatSDK();
-          wx.previewImage({ current: imageUrl, urls: [imageUrl] });
-        } catch {
-          // 静态站点未配置微信签名时，保留图片预览和下载作为兜底。
-          setPreviewImage(imageUrl);
-        }
-      } else {
-        setPreviewImage(imageUrl);
-      }
+      setPreviewImage(imageUrl);
     } catch (error) {
       console.error('结果图片导出失败：', error);
       window.alert('图片生成失败，请刷新页面后重试。');
@@ -325,7 +287,7 @@ export default function App() {
 
         {view === 'result' && result && grade && <>
           <div ref={cardRef} data-result-card className="mx-auto aspect-[9/16] w-full max-w-[390px] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
-          <article style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
+          <article data-result-card-inner style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
@@ -367,7 +329,7 @@ export default function App() {
           <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} disabled={savingImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99] disabled:cursor-wait disabled:opacity-70">{savingImage ? '正在生成…' : '保存图片'}</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
         </>}
       </div>
-      <style>{`@keyframes fade-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes stamp{0%{opacity:0;transform:translateY(-18px) rotate(-12deg) scale(1.2)}70%{opacity:1;transform:translateY(2px) rotate(-12deg) scale(.96)}100%{transform:translateY(0) rotate(-12deg) scale(1)}}.animate-fade-in{animation:fade-in .32s ease-out both}.animate-stamp{animation:stamp .55s cubic-bezier(.2,.75,.25,1) both}`}</style>
+      <style>{`[data-result-card-inner],[data-result-card-inner] *{font-family:system-ui,sans-serif!important}@keyframes fade-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes stamp{0%{opacity:0;transform:translateY(-18px) rotate(-12deg) scale(1.2)}70%{opacity:1;transform:translateY(2px) rotate(-12deg) scale(.96)}100%{transform:translateY(0) rotate(-12deg) scale(1)}}.animate-fade-in{animation:fade-in .32s ease-out both}.animate-stamp{animation:stamp .55s cubic-bezier(.2,.75,.25,1) both}`}</style>
       {previewImage && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label="结果图片预览">
         <div className="relative flex max-h-full w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white p-4">
           <button onClick={() => setPreviewImage(null)} className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-[#171518] shadow" aria-label="关闭图片预览">关闭</button>
