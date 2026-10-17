@@ -287,7 +287,7 @@ export default function App() {
 
         {view === 'result' && result && grade && <>
           <div ref={cardRef} data-result-card className="mx-auto aspect-[9/16] w-full max-w-[390px] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
-          <article data-result-card-inner style={{ gridTemplateRows: '22% 24% 8% 46%', WebkitTextSizeAdjust: '100%', textSizeAdjust: '100%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
+          <article data-result-card-inner style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
@@ -352,7 +352,7 @@ function HeartburnIllustration({ grade }: { grade: Grade }) {
   }[grade];
 
   return (
-    <svg viewBox="0 0 360 330" role="img" aria-label={`${displayResultName(results[grade].level)}的烧心表情插画`} className="absolute inset-0 h-full w-full">
+    <svg viewBox="0 0 360 330" role="img" aria-label={`${displayResultName(results[grade].level)}的烧心表情插画`} className="absolute inset-0 h-full w-full -translate-y-[4cqw]">
       <path d="M49 328 C55 272 73 225 119 207 C140 199 156 195 180 194 C211 193 239 200 263 211 C305 230 318 276 323 330Z" fill="#438f8b" stroke="#47352a" strokeWidth="4" strokeLinejoin="round" />
       <path d="M125 214 C138 247 154 266 179 269 C205 269 223 247 237 213" fill="none" stroke="#315f5d" strokeWidth="3" />
       <path d="M168 181 L168 211 Q181 225 198 211 L198 178" fill="#eaa176" stroke="#47352a" strokeWidth="4" strokeLinejoin="round" />
