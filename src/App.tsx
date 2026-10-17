@@ -192,9 +192,44 @@ export default function App() {
         allowTaint: false,
         windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
         onclone: (clonedDocument) => {
-          // 固定截图副本外框尺寸，不改动页面上卡片的任何样式。
+          // html2canvas 对 cqw 的支持不一致；仅将使用 cqw 的属性换成浏览器已计算的像素值。
           const clonedCard = clonedDocument.querySelector('[data-result-card]') as HTMLElement | null;
           if (!clonedCard) return;
+          const cqwRules: Array<{ selector: string; properties: string[] }> = [];
+          const readRules = (rules: CSSRuleList) => {
+            Array.from(rules).forEach((rule) => {
+              if (rule instanceof CSSStyleRule) {
+                const properties = Array.from({ length: rule.style.length }, (_, index) => rule.style.item(index))
+                  .filter((property) => rule.style.getPropertyValue(property).includes('cqw'));
+                if (properties.length) cqwRules.push({ selector: rule.selectorText, properties });
+              } else if ('cssRules' in rule) {
+                readRules((rule as CSSGroupingRule).cssRules);
+              }
+            });
+          };
+          Array.from(document.styleSheets).forEach((styleSheet) => {
+            try { readRules(styleSheet.cssRules); } catch { /* 忽略不可读取的跨域样式表 */ }
+          });
+          const originalElements = [card, ...Array.from(card.querySelectorAll('*'))];
+          const clonedElements = [clonedCard, ...Array.from(clonedCard.querySelectorAll('*'))];
+          originalElements.forEach((source, index) => {
+            const target = clonedElements[index] as HTMLElement | SVGElement | undefined;
+            if (!target) return;
+            const properties = new Set<string>();
+            cqwRules.forEach(({ selector, properties: ruleProperties }) => {
+              try { if (source.matches(selector)) ruleProperties.forEach((property) => properties.add(property)); } catch { /* 忽略伪元素选择器 */ }
+            });
+            Array.from(source.attributes).forEach((attribute) => {
+              if (attribute.name === 'style' && attribute.value.includes('cqw')) {
+                const inlineStyle = (source as HTMLElement | SVGElement).style;
+                Array.from({ length: inlineStyle.length }, (_, styleIndex) => inlineStyle.item(styleIndex))
+                  .filter((property) => inlineStyle.getPropertyValue(property).includes('cqw'))
+                  .forEach((property) => properties.add(property));
+              }
+            });
+            const computed = window.getComputedStyle(source);
+            properties.forEach((property) => target.style.setProperty(property, computed.getPropertyValue(property)));
+          });
           clonedCard.style.width = `${width}px`;
           clonedCard.style.height = `${height}px`;
           clonedCard.style.maxWidth = 'none';
