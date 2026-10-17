@@ -230,6 +230,11 @@ export default function App() {
             const computed = window.getComputedStyle(source);
             properties.forEach((property) => target.style.setProperty(property, computed.getPropertyValue(property)));
           });
+          const exportScale = width / 390;
+          const exportCallout = clonedCard.querySelector('[data-export-callout]') as HTMLElement | null;
+          const exportTag = clonedCard.querySelector('[data-export-result-tag]') as HTMLElement | null;
+          if (exportCallout) exportCallout.style.transform = `translateY(${-10 * exportScale}px)`;
+          if (exportTag) exportTag.style.transform = `translateY(${-8 * exportScale}px)`;
           clonedCard.style.width = `${width}px`;
           clonedCard.style.height = `${height}px`;
           clonedCard.style.maxWidth = 'none';
@@ -311,7 +316,7 @@ export default function App() {
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
               <p className="mt-[1.7cqw] shrink-0 text-[2.7cqw] font-medium tracking-[0.16em] text-[#8e8c84]">社交靠谱度 · 结果画像</p>
               <div className="mt-[1cqw] flex min-h-0 flex-1 items-center justify-center px-[1cqw]">
-                <p style={{ fontSize: grade === 'B' ? '4.4cqw' : '5cqw' }} className="font-black leading-tight tracking-[-0.04em] text-black">
+                <p data-export-callout style={{ fontSize: grade === 'B' ? '4.4cqw' : '5cqw' }} className="font-black leading-tight tracking-[-0.04em] text-black">
                   {resultCallouts[grade]}
                 </p>
               </div>
@@ -320,7 +325,7 @@ export default function App() {
               <HeartburnIllustration grade={grade} />
             </div>
             <div className="relative z-10 flex min-h-0 items-center justify-center overflow-hidden px-[2cqw]">
-              <span className="whitespace-nowrap text-[9.2cqw] font-black leading-none tracking-[-0.06em] text-[#ef7f9f]">
+              <span data-export-result-tag className="whitespace-nowrap text-[9.2cqw] font-black leading-none tracking-[-0.06em] text-[#ef7f9f]">
                 {result.tag}
               </span>
             </div>
