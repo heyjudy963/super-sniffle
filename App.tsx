@@ -82,6 +82,23 @@ function isWeChatBrowser(): boolean {
   return /MicroMessenger/i.test(navigator.userAgent);
 }
 
+async function waitForCardImages(card: HTMLElement): Promise<void> {
+  const images = Array.from(card.querySelectorAll('img'));
+  await Promise.all(images.map(async (image) => {
+    if (!image.complete) {
+      await new Promise<void>((resolve) => {
+        image.addEventListener('load', () => resolve(), { once: true });
+        image.addEventListener('error', () => resolve(), { once: true });
+      });
+    }
+    if (image.complete && image.naturalWidth > 0 && typeof image.decode === 'function') {
+      try { await image.decode(); } catch { /* 图片已加载但浏览器拒绝 decode 时继续截图 */ }
+    }
+  }));
+}
+
+const wait = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
+
 function loadWeChatSDK(): Promise<NonNullable<Window['wx']>> {
   if (window.wx?.previewImage) return Promise.resolve(window.wx);
   return new Promise((resolve, reject) => {
@@ -180,14 +197,16 @@ export default function App() {
     if (!card || savingImage) return;
     setSavingImage(true);
     try {
-      await document.fonts.ready;
+      window.scrollTo(0, 0);
+      await Promise.all([document.fonts.ready, waitForCardImages(card)]);
+      await wait(300);
       const { width, height } = card.getBoundingClientRect();
-      const pixelRatio = Math.max(1, window.devicePixelRatio || 1);
+      const pixelRatio = window.devicePixelRatio || 1;
       const capturedCanvas = await html2canvas(card, {
         scale: pixelRatio,
         width,
         height,
-        backgroundColor: '#fffdf7',
+        backgroundColor: '#f8f6f0',
         useCORS: true,
         allowTaint: false,
         windowWidth: Math.max(document.documentElement.clientWidth, Math.ceil(width)),
@@ -230,11 +249,6 @@ export default function App() {
             const computed = window.getComputedStyle(source);
             properties.forEach((property) => target.style.setProperty(property, computed.getPropertyValue(property)));
           });
-          const exportScale = width / 390;
-          const exportCallout = clonedCard.querySelector('[data-export-callout]') as HTMLElement | null;
-          const exportTag = clonedCard.querySelector('[data-export-result-tag]') as HTMLElement | null;
-          if (exportCallout) exportCallout.style.transform = `translateY(${-10 * exportScale}px)`;
-          if (exportTag) exportTag.style.transform = `translateY(${-8 * exportScale}px)`;
           clonedCard.style.width = `${width}px`;
           clonedCard.style.height = `${height}px`;
           clonedCard.style.maxWidth = 'none';
@@ -247,7 +261,7 @@ export default function App() {
       jpegCanvas.height = capturedCanvas.height;
       const context = jpegCanvas.getContext('2d');
       if (!context) throw new Error('无法创建图片画布');
-      context.fillStyle = '#fffdf7';
+      context.fillStyle = '#f8f6f0';
       context.fillRect(0, 0, jpegCanvas.width, jpegCanvas.height);
       context.drawImage(capturedCanvas, 0, 0, jpegCanvas.width, jpegCanvas.height);
       const imageUrl = jpegCanvas.toDataURL('image/jpeg', 0.92);
@@ -310,7 +324,8 @@ export default function App() {
         </section>}
 
         {view === 'result' && result && grade && <>
-          <article ref={cardRef} data-result-card style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="mx-auto grid aspect-[9/16] w-full max-w-[390px] overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#fffdf7] text-[#202326] shadow-[0_6px_24px_rgba(36,32,24,0.055)] [container-type:inline-size]">
+          <div ref={cardRef} data-result-card className="mx-auto aspect-[9/16] w-full max-w-[390px] shadow-[0_6px_24px_rgba(36,32,24,0.055)]">
+          <article style={{ gridTemplateRows: '22% 24% 10% 44%' }} className="grid h-full w-full overflow-hidden rounded-[20px] border border-[#ebe7dd] bg-[#f8f6f0] text-[#202326] [container-type:inline-size]">
             <div className="flex min-h-0 flex-col items-center overflow-hidden px-[4cqw] pt-[4cqw] text-center">
               <p className="shrink-0 text-[8.7cqw] font-black leading-none tracking-[-0.065em] text-[#202124]">PYROSIS</p>
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
@@ -348,6 +363,7 @@ export default function App() {
               </div>
             </div>
           </article>
+          </div>
           <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"><button onClick={saveImage} disabled={savingImage} className="rounded-full bg-[#171518] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#fffdf7] transition hover:bg-[#353036] active:scale-[.99] disabled:cursor-wait disabled:opacity-70">{savingImage ? '正在生成…' : '保存图片'}</button><button onClick={copyLink} className="rounded-full border border-[#f0dce5] bg-white px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#4c4942] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99]">{copied ? '已复制' : '复制分享链接'}</button>{isShared ? <button onClick={reset} className="col-span-2 rounded-full border border-[#f0c8d8] bg-[#fff0f5] px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#bd4f7b] transition hover:bg-[#fbe4ed] active:scale-[.99] sm:col-span-1">我也要测</button> : <button onClick={reset} className="col-span-2 rounded-full border border-[#f0dce5] bg-transparent px-3 py-3.5 text-[12px] font-bold tracking-[.04em] text-[#777268] transition hover:border-[#e7a0bb] hover:bg-white active:scale-[.99] sm:col-span-1">重新测试</button>}</div>
         </>}
       </div>
