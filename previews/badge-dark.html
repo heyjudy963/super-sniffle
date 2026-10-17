@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>风格预览 · 工牌深色版</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      background: #121316;
+      font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .screen { width: min(420px, 100%); text-align: center; }
+    .badge-label {
+      display: inline-block;
+      border: 1px solid #3a3d47;
+      color: #9a9ea8;
+      padding: 5px 12px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: #1a1c21;
+      border: 1px solid #2c2f38;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      text-align: left;
+      position: relative;
+    }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .company {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #6a6e7a;
+    }
+    .card-id {
+      font-size: 11px;
+      color: #6a6e7a;
+      font-family: ui-monospace, monospace;
+    }
+    .photo {
+      width: 86px; height: 110px;
+      background: #23252c;
+      border: 1px solid #2c2f38;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      color: #555;
+      flex-shrink: 0;
+    }
+    .profile {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+    .profile-info {
+      flex: 1;
+    }
+    .name-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .name {
+      font-size: 26px;
+      font-weight: 900;
+      color: #f4f4f4;
+    }
+    .dept {
+      font-size: 12px;
+      color: #8a8e98;
+    }
+    .title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #00d2ff;
+      margin-bottom: 4px;
+    }
+    .level {
+      font-size: 13px;
+      color: #b0b4be;
+      font-weight: 600;
+    }
+    .divider {
+      height: 1px;
+      background: #2c2f38;
+      margin: 18px 0;
+    }
+    .field {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #23252c;
+      font-size: 13px;
+    }
+    .field:last-child { border-bottom: none; }
+    .field-label { color: #6a6e7a; }
+    .field-value { color: #f4f4f4; font-weight: 700; }
+    .stamp {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      border: 3px solid #00d2ff;
+      color: #00d2ff;
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      font-weight: 900;
+      transform: rotate(-12deg);
+      position: absolute;
+      right: 28px;
+      top: 140px;
+      opacity: .9;
+      box-shadow: 0 0 24px rgba(0,210,255,.25);
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 10px;
+      color: #4a4e58;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="badge-label">方向 02 · 工牌深色版</div>
+    <div class="card">
+      <div class="card-head">
+        <div class="company">万物烧心测试 · 社交靠谱度</div>
+        <div class="card-id">NO.09-042</div>
+      </div>
+      <div class="profile">
+        <div class="photo">照片</div>
+        <div class="profile-info">
+          <div class="name-row">
+            <div class="name">被测人</div>
+            <div class="dept">社交关系部</div>
+          </div>
+          <div class="title">A级｜社交清流</div>
+          <div class="level">靠谱珍稀款</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <span class="field-label">背调结论</span>
+        <span class="field-value">社交清流</span>
+      </div>
+      <div class="field">
+        <span class="field-label">风险评级</span>
+        <span class="field-value">A 级</span>
+      </div>
+      <div class="field">
+        <span class="field-label">核心特征</span>
+        <span class="field-value">不画饼、不迂回、不烧心</span>
+      </div>
+      <div class="field">
+        <span class="field-label">备注</span>
+        <span class="field-value">建议重点保护</span>
+      </div>
+      <div class="stamp">A</div>
+      <div class="footer">本工牌仅供娱乐 · 请勿当真</div>
+    </div>
+  </div>
+</body>
+</html>

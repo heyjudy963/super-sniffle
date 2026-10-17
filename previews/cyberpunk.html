@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>风格预览 · 赛博朋克 Neon</title>
+  <style>
+    :root {
+      --bg: #0a0b12;
+      --card: #11121a;
+      --accent: #00f0ff;
+      --accent-2: #ff006e;
+      --text: #ffffff;
+      --muted: #a8b2c8;
+      --dim: #5a6a8a;
+    }
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background-image:
+        linear-gradient(rgba(0,240,255,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,240,255,.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .screen { width: min(400px, 100%); text-align: center; }
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 12px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(0,240,255,.35);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow:
+        0 0 0 1px rgba(0,240,255,.1),
+        0 0 40px rgba(0,240,255,.12),
+        inset 0 0 60px rgba(0,240,255,.04);
+    }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 1px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(0,240,255,.25);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-top: 22px;
+      gap: 16px;
+    }
+    .head h1 {
+      font-size: 26px;
+      line-height: 1.05;
+      font-weight: 900;
+      text-shadow: 0 0 16px rgba(0,240,255,.45);
+    }
+    .year {
+      font-size: 10px;
+      color: var(--accent-2);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .stamp {
+      width: 78px; height: 78px;
+      border-radius: 50%;
+      border: 3px solid var(--accent-2);
+      display: grid;
+      place-items: center;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--accent-2);
+      box-shadow: 0 0 28px rgba(255,0,110,.45);
+      flex-shrink: 0;
+    }
+    .classify {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-top: 22px;
+    }
+    .classify h2 { font-size: 18px; color: var(--accent); margin-top: 4px; }
+    .classify small { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+    .tag {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.15);
+      padding: 5px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text);
+      border-radius: 4px;
+    }
+    .desc {
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .risk {
+      margin-top: 16px;
+      background: rgba(255,255,255,.05);
+      border-left: 3px solid var(--accent-2);
+      padding: 12px 14px;
+      border-radius: 0 6px 6px 0;
+      text-align: left;
+    }
+    .risk b { color: var(--accent-2); font-size: 11px; }
+    .risk p { margin-top: 4px; font-size: 12px; line-height: 1.55; }
+    .bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: 16px;
+      border: 1px solid rgba(0,240,255,.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar span {
+      padding: 9px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .bar span.active { background: var(--accent); color: var(--bg); }
+    .bar span:not(.active) { background: rgba(0,240,255,.06); color: var(--dim); }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="badge">方向 01 · 赛博朋克 Neon</div>
+    <div class="card">
+      <div class="meta">
+        <span>PERSONNEL / DUE DILIGENCE</span>
+        <span>档案编号 09-042</span>
+      </div>
+      <div class="head">
+        <div>
+          <div class="year">最终背调报告 · 2026</div>
+          <h1>社交靠谱度<br>评估结论单</h1>
+        </div>
+        <div class="stamp">A</div>
+      </div>
+      <div class="classify">
+        <div>
+          <small>RESULT CLASSIFICATION</small>
+          <h2>A级｜社交清流</h2>
+        </div>
+        <div class="tag">靠谱珍稀款</div>
+      </div>
+      <p class="desc">经鉴定，你属于社交圈里罕见的老实人。不画饼，不迂回，不把别人的期待当耗材。跟你相处不用反复复盘，不用偷偷留后路。</p>
+      <div class="risk">
+        <b>风险备注</b>
+        <p>此类人物因过于稀缺，建议社交圈重点保护。</p>
+      </div>
+      <div class="bar">
+        <span class="active">A</span>
+        <span>B</span>
+        <span>C</span>
+        <span>D</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

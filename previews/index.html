@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>万物烧心测试 · 视觉风格预览</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      font-family: system-ui, -apple-system, "PingFang SC", sans-serif;
+      background: #f4f4f4;
+      padding: 40px 24px;
+      color: #1a1a1a;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    p.lead { color: #666; margin-bottom: 28px; font-size: 14px; }
+    .grid { display: grid; gap: 14px; }
+    a.card {
+      display: block;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px 22px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+      transition: transform .1s, box-shadow .1s;
+    }
+    a.card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+    .card h2 { font-size: 16px; margin-bottom: 4px; }
+    .card span { font-size: 13px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>万物烧心测试 · 视觉风格预览</h1>
+    <p class="lead">工牌形式 · 简约文字为主 · 选一个方向继续推进</p>
+    <div class="grid">
+      <a class="card" href="badge-light.html">
+        <h2>方向 01 · 工牌白底版</h2>
+        <span>干净白底、黑字为主、红褐强调色</span>
+      </a>
+      <a class="card" href="badge-dark.html">
+        <h2>方向 02 · 工牌深色版</h2>
+        <span>深色背景、青蓝强调色、更酷感</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
