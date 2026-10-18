@@ -18,31 +18,31 @@ declare global {
 
 const questions: Question[] = [
   // 从 30 题候选中抽取，按主题混排，避免同类情境连续出现。
-  { title: '你开玩笑后发现对方明显不舒服，会？', options: [ { text: '说“我就开个玩笑”，然后继续', score: 'C' }, { text: '停下来道歉，不要求对方“别当真”', score: 'A' }, { text: '反过来笑对方开不起玩笑', score: 'D' }, { text: '解释自己没有恶意，也会注意分寸', score: 'B' },
+  { title: '你开玩笑后发现对方明显不舒服，会？', options: [ { text: '先把话题轻轻带过，之后再留意对方的感受', score: 'C' }, { text: '停下来道歉，不要求对方“别当真”', score: 'A' }, { text: '觉得对方可能只是没接住梗，继续用玩笑缓和气氛', score: 'D' }, { text: '解释自己没有恶意，也会注意分寸', score: 'B' },
   ] },
-  { title: '你答应帮人办事，后来发现比想象中麻烦，会怎么做？', options: [ { text: '先试着处理，确认有困难再及时告知', score: 'B' }, { text: '继续答应得很爽快，实际悄悄搁置', score: 'D' }, { text: '尽早说明难处，一起商量能否调整', score: 'A' }, { text: '先拖一拖，等对方问起再解释', score: 'C' },
+  { title: '你答应帮人办事，后来发现比想象中麻烦，会怎么做？', options: [ { text: '先试着处理，确认有困难再及时告知', score: 'B' }, { text: '怕让对方失望，先照常答应，再看能否安排出时间', score: 'D' }, { text: '尽早说明难处，一起商量能否调整', score: 'A' }, { text: '先自己想办法推进，进展不顺时才同步情况', score: 'C' },
   ] },
-  { title: '你向别人推荐一件东西或一项服务，会怎么介绍？', options: [ { text: '夸大效果，保证“绝对不会踩雷”', score: 'D' }, { text: '主要说优点，也会提到明显缺点', score: 'B' }, { text: '放大优点，问题轻轻带过', score: 'C' }, { text: '优缺点都说清楚，让对方自己判断', score: 'A' },
+  { title: '你向别人推荐一件东西或一项服务，会怎么介绍？', options: [ { text: '介绍时会用更理想的说法，让对方更容易心动', score: 'D' }, { text: '主要说优点，也会提到明显缺点', score: 'B' }, { text: '重点分享自己认可的优点，问题部分简单带过', score: 'C' }, { text: '优缺点都说清楚，让对方自己判断', score: 'A' },
   ] },
-  { title: '有人找你倾诉，而你当时状态不太好，会？', options: [ { text: '一边应付一边做别的事', score: 'C' }, { text: '不回应，之后还嫌对方太情绪化', score: 'D' }, { text: '先听一会儿，再说明自己需要休息', score: 'B' }, { text: '说明现在的状态，约个能认真倾听的时间', score: 'A' },
+  { title: '有人找你倾诉，而你当时状态不太好，会？', options: [ { text: '尽量保持回应，但注意力可能会分散', score: 'C' }, { text: '当下先不回复，想着等状态好一点再回应', score: 'D' }, { text: '先听一会儿，再说明自己需要休息', score: 'B' }, { text: '说明现在的状态，约个能认真倾听的时间', score: 'A' },
   ] },
-  { title: '团队合作时，有人没有完成自己负责的部分，你会？', options: [ { text: '适当补位，同时提醒对方补上责任', score: 'B' }, { text: '先把事实和分工说清楚，再协调后续', score: 'A' }, { text: '先把责任推给别人，避免自己被问到', score: 'D' }, { text: '不想冲突，默默把事情做完', score: 'C' },
+  { title: '团队合作时，有人没有完成自己负责的部分，你会？', options: [ { text: '适当补位，同时提醒对方补上责任', score: 'B' }, { text: '先把事实和分工说清楚，再协调后续', score: 'A' }, { text: '更愿意先梳理整体原因，自己的责任部分有时需要别人提醒', score: 'D' }, { text: '先把事情补上，之后再讨论责任分工', score: 'C' },
   ] },
-  { title: '你发现自己会迟到，通常会？', options: [ { text: '不说，觉得对方等一会儿也没关系', score: 'D' }, { text: '到了约定时间才说“我快到了”', score: 'C' }, { text: '提前告知预计时间，让对方决定怎么安排', score: 'A' }, { text: '确认迟到后马上发消息', score: 'B' },
+  { title: '你发现自己会迟到，通常会？', options: [ { text: '等对方联系时再更新情况，觉得不用太早报备', score: 'D' }, { text: '觉得距离不远，等时间更明确了再告知', score: 'C' }, { text: '提前告知预计时间，让对方决定怎么安排', score: 'A' }, { text: '确认迟到后马上发消息', score: 'B' },
   ] },
-  { title: '别人反复请你帮忙，而你已经觉得为难，会？', options: [ { text: '说明自己的边界，讲清能帮和不能帮的部分', score: 'A' }, { text: '不好意思拒绝，心里越来越不满', score: 'C' }, { text: '先答应，之后用拖延或失联逼对方放弃', score: 'D' }, { text: '这次帮忙后提醒对方以后提前商量', score: 'B' },
+  { title: '别人反复请你帮忙，而你已经觉得为难，会？', options: [ { text: '说明自己的边界，讲清能帮和不能帮的部分', score: 'A' }, { text: '不太好意思拒绝，先答应下来再想办法协调', score: 'C' }, { text: '希望不让对方失望，先答应，具体能否做到之后再看', score: 'D' }, { text: '这次帮忙后提醒对方以后提前商量', score: 'B' },
   ] },
-  { title: '别人告诉你一件私密的事，你会？', options: [ { text: '当作聊天素材讲给更多人听', score: 'D' }, { text: '未经允许不转述，也不拿来当谈资', score: 'A' }, { text: '只向确实需要知道的人求助，并保护隐私', score: 'B' }, { text: '觉得熟人之间说说没关系', score: 'C' },
+  { title: '别人告诉你一件私密的事，你会？', options: [ { text: '分享时没先确认对方是否方便，之后才意识到要顾及感受', score: 'D' }, { text: '未经允许不转述，也不拿来当谈资', score: 'A' }, { text: '只向确实需要知道的人求助，并保护隐私', score: 'B' }, { text: '在熟人之间偶尔提起，觉得对方大概不会介意', score: 'C' },
   ] },
-  { title: '朋友或同事提出一个你不同意的想法，你会？', options: [ { text: '表面赞同，之后按自己的想法做', score: 'C' }, { text: '温和表达不同意见，留出讨论空间', score: 'B' }, { text: '直接说明分歧和理由，保持尊重', score: 'A' }, { text: '当面说好，转头吐槽或拆台', score: 'D' },
+  { title: '朋友或同事提出一个你不同意的想法，你会？', options: [ { text: '先表示理解，之后再按自己的判断推进', score: 'C' }, { text: '温和表达不同意见，留出讨论空间', score: 'B' }, { text: '直接说明分歧和理由，保持尊重', score: 'A' }, { text: '当下先不展开讨论，之后再找机会表达真实想法', score: 'D' },
   ] },
-  { title: '一件事出了问题，发现自己也有责任，你会？', options: [ { text: '说清自己负责的部分，并提出补救办法', score: 'A' }, { text: '尽量模糊责任，让别人背下主要问题', score: 'D' }, { text: '先强调客观原因，等别人追问再承认', score: 'C' }, { text: '解释当时情况，也愿意承担该承担的部分', score: 'B' },
+  { title: '一件事出了问题，发现自己也有责任，你会？', options: [ { text: '说清自己负责的部分，并提出补救办法', score: 'A' }, { text: '更愿意先梳理整体原因，自己的责任通常要等讨论时再提', score: 'D' }, { text: '先说明事情背景，等情况清楚后再谈自己的部分', score: 'C' }, { text: '解释当时情况，也愿意承担该承担的部分', score: 'B' },
   ] },
-  { title: '原定计划临时有变，你无法按约定参与，会？', options: [ { text: '确认无法参加后及时告知，简单说明原因', score: 'B' }, { text: '等对方来确认时再说计划有变', score: 'C' }, { text: '临近时才编个借口取消，避免解释真实情况', score: 'D' }, { text: '尽早主动说明，并一起商量替代安排', score: 'A' },
+  { title: '原定计划临时有变，你无法按约定参与，会？', options: [ { text: '确认无法参加后及时告知，简单说明原因', score: 'B' }, { text: '先看看安排是否还能调整，确认不行后再告知', score: 'C' }, { text: '希望不影响当下气氛，临近时再用比较委婉的方式说明', score: 'D' }, { text: '尽早主动说明，并一起商量替代安排', score: 'A' },
   ] },
-  { title: '你不想参加一场邀约，通常会怎么回应？', options: [ { text: '口头答应，临近时再失联或临时放鸽子', score: 'D' }, { text: '先说“到时看看”，之后尽量不再提', score: 'C' }, { text: '礼貌婉拒，也表达感谢和歉意', score: 'B' }, { text: '坦诚说明不方便，不让对方一直等答复', score: 'A' },
+  { title: '你不想参加一场邀约，通常会怎么回应？', options: [ { text: '为了不让当下气氛变尴尬，先答应再决定如何安排', score: 'D' }, { text: '先保留答复，等安排更明朗时再回复', score: 'C' }, { text: '礼貌婉拒，也表达感谢和歉意', score: 'B' }, { text: '坦诚说明不方便，不让对方一直等答复', score: 'A' },
   ] },
-  { title: '朋友请你牵线介绍，你会如何处理？', options: [ { text: '先征得双方同意，再如实介绍彼此情况', score: 'A' }, { text: '确认大致合适后帮忙牵线，不替任何人打包票', score: 'B' }, { text: '未经同意就交换联系方式，还保证“一定合适”', score: 'D' }, { text: '为了促成见面，把双方优点说得过满', score: 'C' },
+  { title: '朋友请你牵线介绍，你会如何处理？', options: [ { text: '先征得双方同意，再如实介绍彼此情况', score: 'A' }, { text: '确认大致合适后帮忙牵线，不替任何人打包票', score: 'B' }, { text: '出于热心先安排双方认识，之后再确认彼此是否方便', score: 'D' }, { text: '介绍时多讲双方合拍的地方，希望气氛先热络起来', score: 'C' },
   ] },
 ];
 
@@ -98,7 +98,8 @@ export default function App() {
   const [isShared, setIsShared] = useState(Boolean(initialShared));
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [burnScore, setBurnScore] = useState(0);
+  const [answers, setAnswers] = useState<Array<number | null>>(() => Array(questions.length).fill(null));
+  const [isAdvancing, setIsAdvancing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showSaveHint, setShowSaveHint] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
@@ -130,7 +131,7 @@ export default function App() {
 
   const completeQuiz = (totalBurnScore: number) => {
     const winner = gradeFromBurnScore(totalBurnScore);
-    setBurnScore(totalBurnScore); setGrade(winner); setIsShared(false);
+    setGrade(winner); setIsShared(false);
     // 只统计完整答题次数，不附带答案或结果等级。
     trackQuizCompletion();
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#result=${winner}`);
@@ -138,20 +139,40 @@ export default function App() {
   };
 
   const chooseOption = (optionIndex: number) => {
-    if (selectedOption !== null) return;
+    if (isAdvancing) return;
     setSelectedOption(optionIndex);
+    setIsAdvancing(true);
     window.setTimeout(() => {
-      const selectedGrade = questions[questionIndex].options[optionIndex].score;
-      const updated = burnScore + burnPoints[selectedGrade];
-      if (questionIndex === questions.length - 1) completeQuiz(updated);
-      else { setBurnScore(updated); setQuestionIndex((index) => index + 1); setSelectedOption(null); }
+      const updatedAnswers = [...answers];
+      updatedAnswers[questionIndex] = optionIndex;
+      setAnswers(updatedAnswers);
+      if (questionIndex === questions.length - 1) {
+        const totalBurnScore = updatedAnswers.reduce<number>((total, answerIndex, currentQuestion) => {
+          if (answerIndex === null) return total;
+          const selectedGrade = questions[currentQuestion].options[answerIndex].score;
+          return total + burnPoints[selectedGrade];
+        }, 0);
+        completeQuiz(totalBurnScore);
+      } else {
+        const nextIndex = questionIndex + 1;
+        setQuestionIndex(nextIndex);
+        setSelectedOption(updatedAnswers[nextIndex] ?? null);
+        setIsAdvancing(false);
+      }
     }, 380);
   };
 
-  const startQuiz = () => { setBurnScore(0); setQuestionIndex(0); setSelectedOption(null); transition('quiz'); };
+  const goToPreviousQuestion = () => {
+    if (questionIndex === 0 || isAdvancing) return;
+    const previousIndex = questionIndex - 1;
+    setQuestionIndex(previousIndex);
+    setSelectedOption(answers[previousIndex] ?? null);
+  };
+
+  const startQuiz = () => { setAnswers(Array(questions.length).fill(null)); setQuestionIndex(0); setSelectedOption(null); setIsAdvancing(false); transition('quiz'); };
   const reset = () => {
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-    setBurnScore(0); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); transition('home');
+    setAnswers(Array(questions.length).fill(null)); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); setIsAdvancing(false); transition('home');
   };
   const saveImage = () => setShowSaveHint(true);
   const copyLink = async () => {
@@ -189,6 +210,9 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-[#f0e5e9] pb-5"><div><p className="font-mono text-[9px] tracking-[.16em] text-[#99919a]">SOCIAL RELIABILITY REVIEW</p><h2 className="mt-2 text-xl font-bold tracking-tight text-[#171518]">行为核验问卷</h2></div><span className="rounded-full bg-[#fff0f5] px-3 py-2 font-mono text-[12px] font-bold text-[#d65e8d]">{String(questionIndex + 1).padStart(2, '0')}<span className="text-[#cda8b7]"> / {String(questions.length).padStart(2, '0')}</span></span></div>
             <div className="mt-8 min-h-[112px]"><p className="mb-3 text-[10px] font-bold tracking-[.16em] text-[#d65e8d]">问题 {String(questionIndex + 1).padStart(2, '0')} <span className="ml-1 font-mono font-medium text-[#a49ba3]">/ CHECKPOINT</span></p><h3 className="text-[21px] font-bold leading-[1.65] tracking-[-.02em] text-[#201d21]">{questions[questionIndex].title}</h3></div>
             <div className="mt-5 space-y-3">{questions[questionIndex].options.map((option, index) => <button key={option.score} onClick={() => chooseOption(index)} className={`group flex w-full items-start gap-3 rounded-2xl border px-4 py-4 text-left text-[14px] leading-6 transition duration-200 active:scale-[.99] ${selectedOption === index ? 'border-[#e681a7] bg-[#fff0f5]' : 'border-[#eee7eb] bg-white/75 hover:border-[#e7a9bf] hover:bg-[#fff7fa]'}`}><span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-bold transition-colors ${selectedOption === index ? 'bg-[#e77ba2] text-white' : 'bg-[#f3eff2] text-[#827a83] group-hover:bg-[#fbe4ed] group-hover:text-[#bd4f7b]'}`}>{String.fromCharCode(65 + index)}</span><span className="pt-0.5 text-[#45433e]">{option.text}</span></button>)}</div>
+            <div className="mt-4 flex justify-start">
+              <button type="button" onClick={goToPreviousQuestion} disabled={questionIndex === 0 || isAdvancing} className="rounded-full border border-[#f0dce5] bg-white px-4 py-2.5 text-xs font-bold text-[#777268] transition hover:border-[#e7a0bb] hover:bg-[#fff7fa] active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-40">← 返回上一题</button>
+            </div>
             <div className="mt-8 border-t border-[#eee7eb] pt-5"><div className="mb-3 flex justify-between text-[10px] font-semibold tracking-[.08em] text-[#928a94]"><span>背调进度</span><span className="font-mono">{questionIndex + 1} / {questions.length}</span></div><div className="h-2 overflow-hidden rounded-full bg-[#f2edf0]"><div className="h-full rounded-full bg-[#ed83ad] transition-all duration-500" style={{ width: `${progress}%` }} /></div><div aria-hidden="true" className="mt-3 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${questions.length}, minmax(0, 1fr))` }}>{questions.map((_, index) => <span key={index} className={`h-1 rounded-full transition-colors duration-300 ${index < questionIndex ? 'bg-[#ed83ad]' : index === questionIndex ? 'bg-[#171518]' : 'bg-[#eee8ec]'}`} />)}</div></div>
           </div>
         </section>}
