@@ -48,12 +48,20 @@ const questions: Question[] = [
 
 const results: Record<Grade, Result> = {
   A: { level: 'A级｜社交清流', tag: '靠谱珍稀款', title: '背调结论：社交清流', description: '经鉴定，你属于社交圈里罕见的老实人。不画饼，不迂回，不把别人的期待当耗材。跟你相处不用反复复盘，不用偷偷留后路，心脏温度稳定，基本不烧心。', remark: '备注：此类人物因过于稀缺，建议社交圈重点保护。' },
-  B: { level: 'B级｜懂得留余地的聪明人', tag: '安全但有修饰', title: '背调结论：懂得留余地的聪明人', description: '大方向还算稳，底线没有明显崩塌。只是你很懂社交包装术，该藏的藏，该美化的美化，小事不摊开，细节不深究。轻微烧心，但在可接受范围内。', remark: '备注：属于职场和社交场上的合格选手，不算翻车，也不算惊喜。' },
+  B: { level: 'B级｜懂得留余地的聪明人', tag: '微烫预警，尚可控场', title: '背调结论：懂得留余地的聪明人', description: '大方向还算稳，底线没有明显崩塌。只是你很懂社交包装术，该藏的藏，该美化的美化，小事不摊开，细节不深究。轻微烧心，但在可接受范围内。', remark: '备注：属于职场和社交场上的合格选手，不算翻车，也不算惊喜。' },
   C: { level: 'C级｜状态看老天爷的选手', tag: '随机烧心盲盒', title: '背调结论：状态看老天爷的选手', description: '顺利时你很正常，甚至显得可靠；一旦压力上来，拖延、回避、含糊其辞立刻上线。你的社交稳定性不稳定，别人跟你相处像开盲盒，随时可能突然烧心。', remark: '备注：建议合作前先确认天气、星座、当日精神状态及老板脸色。' },
-  D: { level: 'D级｜期待毁灭专家', tag: '烧心专业户', title: '背调结论：期待毁灭专家', description: '你最擅长把预期拉满，把承诺讲亮，把未来描绘得天花乱坠。至于落地，那属于另一个话题。跟你接触的人，往往前期充满期待，后期疯狂烧心。', remark: '备注：此类人物建议随身携带灭火器、降压药和心理建设指南。' },
+  D: { level: 'D级｜期待毁灭专家', tag: '烧心专业户', title: '背调结论：期待毁灭专家', description: '你很会把气氛和期待值拉满，常让人觉得“这次肯定有戏”。偶尔计划赶不上灵感，过程比结果更有故事感。和你相处总有新鲜感，提前对齐节奏，就能把小火花变成好玩的回忆。', remark: '备注：此类人物建议随身携带灭火器、降压药和心理建设指南。' },
 };
 
 const grades: Grade[] = ['A', 'B', 'C', 'D'];
+const burnPoints: Record<Grade, number> = { A: 0, B: 1, C: 2, D: 3 };
+function gradeFromBurnScore(total: number): Grade {
+  const average = total / questions.length;
+  if (average <= 0.75) return 'A';
+  if (average <= 1.5) return 'B';
+  if (average <= 2.25) return 'C';
+  return 'D';
+}
 const resultQuotes: Record<Grade, string> = {
   A: '真诚自有分量，可靠无需声张。',
   B: '进退有度，是温柔的清醒。',
@@ -90,7 +98,7 @@ export default function App() {
   const [isShared, setIsShared] = useState(Boolean(initialShared));
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [scores, setScores] = useState<Record<Grade, number>>({ A: 0, B: 0, C: 0, D: 0 });
+  const [burnScore, setBurnScore] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showSaveHint, setShowSaveHint] = useState(false);
   const [transitionKey, setTransitionKey] = useState(0);
@@ -120,10 +128,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, [isShared]);
 
-  const completeQuiz = (nextScores: Record<Grade, number>) => {
-    // 同分时按 A、B、C、D 的顺序取第一个，确保结果稳定。
-    const winner = grades.reduce((best, current) => nextScores[current] > nextScores[best] ? current : best, 'A');
-    setScores(nextScores); setGrade(winner); setIsShared(false);
+  const completeQuiz = (totalBurnScore: number) => {
+    const winner = gradeFromBurnScore(totalBurnScore);
+    setBurnScore(totalBurnScore); setGrade(winner); setIsShared(false);
     // 只统计完整答题次数，不附带答案或结果等级。
     trackQuizCompletion();
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#result=${winner}`);
@@ -134,16 +141,17 @@ export default function App() {
     if (selectedOption !== null) return;
     setSelectedOption(optionIndex);
     window.setTimeout(() => {
-      const updated = { ...scores, [questions[questionIndex].options[optionIndex].score]: scores[questions[questionIndex].options[optionIndex].score] + 1 };
+      const selectedGrade = questions[questionIndex].options[optionIndex].score;
+      const updated = burnScore + burnPoints[selectedGrade];
       if (questionIndex === questions.length - 1) completeQuiz(updated);
-      else { setScores(updated); setQuestionIndex((index) => index + 1); setSelectedOption(null); }
+      else { setBurnScore(updated); setQuestionIndex((index) => index + 1); setSelectedOption(null); }
     }, 380);
   };
 
-  const startQuiz = () => { setScores({ A: 0, B: 0, C: 0, D: 0 }); setQuestionIndex(0); setSelectedOption(null); transition('quiz'); };
+  const startQuiz = () => { setBurnScore(0); setQuestionIndex(0); setSelectedOption(null); transition('quiz'); };
   const reset = () => {
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
-    setScores({ A: 0, B: 0, C: 0, D: 0 }); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); transition('home');
+    setBurnScore(0); setGrade(null); setIsShared(false); setQuestionIndex(0); setSelectedOption(null); transition('home');
   };
   const saveImage = () => setShowSaveHint(true);
   const copyLink = async () => {
