@@ -61,10 +61,10 @@ const resultQuotes: Record<Grade, string> = {
   D: '故事很动人，愿你也有好结局。',
 };
 const resultCallouts: Record<Grade, string> = {
-  A: '一点不烧心',
+  A: '一点不烧心！',
   B: '烧就是烧，微烧什么意思？',
   C: '烧不烧看状态',
-  D: '烧起来了！',
+  D: '规矩没立好，烧起来了！',
 };
 const fireScale: Record<Grade, number> = { A: 0, B: 0.3, C: 0.62, D: 1 };
 const displayResultName = (level: string) => level.replace(/^[A-D]级｜/, '');
@@ -193,8 +193,8 @@ export default function App() {
               <p className="mt-[0.8cqw] shrink-0 text-[4.1cqw] font-black leading-tight tracking-[0.01em] text-[#d06435]">= FIRE IN THE CHEST?</p>
               <p className="mt-[1.7cqw] shrink-0 text-[2.7cqw] font-medium tracking-[0.16em] text-[#8e8c84]">社交靠谱度 · 结果画像</p>
               <div className="mt-[1cqw] flex min-h-0 flex-1 items-center justify-center px-[1cqw]">
-                <p data-export-callout style={{ fontSize: grade === 'B' ? '4.4cqw' : '5cqw' }} className="font-black leading-tight tracking-[-0.04em] text-black">
-                  {resultCallouts[grade]}
+                <p data-export-result-tag className="whitespace-nowrap text-[9.2cqw] font-black leading-none tracking-[-0.06em] text-[#ef7f9f]">
+                  {result.tag}
                 </p>
               </div>
             </div>
@@ -202,8 +202,8 @@ export default function App() {
               <HeartburnIllustration grade={grade} />
             </div>
             <div className="relative z-10 flex min-h-0 items-center justify-center overflow-hidden px-[2cqw]">
-              <span data-export-result-tag className="whitespace-nowrap text-[9.2cqw] font-black leading-none tracking-[-0.06em] text-[#ef7f9f]">
-                {result.tag}
+              <span data-export-callout style={{ fontSize: '6cqw' }} className="font-black leading-tight tracking-[-0.04em] text-black">
+                “{resultCallouts[grade]}”
               </span>
             </div>
             <div className="grid min-h-0 overflow-hidden px-[5cqw] pb-[2cqw] pt-[1cqw]" style={{ gridTemplateRows: 'minmax(0, 1fr) auto' }}>
